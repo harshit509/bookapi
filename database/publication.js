@@ -3,7 +3,7 @@ const mongoose=require("mongoose");
 const PublicationSchema=mongoose.Schema({
     id:Number,
     name:String,
-    book:[Number]
+    book:[String]
 })
 
 // create a model

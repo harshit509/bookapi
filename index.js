@@ -1,7 +1,5 @@
 
 require("dotenv").config();
-
-
 const express= require("express");
 
 // mongoose
@@ -34,18 +32,22 @@ mongoose.connect(process.env.MONGO_URL,{useNewUrlParser: true,
 /*
 // request -get
 */
-shapeai.get("/",(reqest,response)=>{
-return response.json({books:database.books});
+shapeai.get("/",async(reqest,response)=>{
+    const getallbooks=await BookModel.find();
+return response.json({books:getallbooks});
 })
 
 
 // to  get a specific book
 // request -get
-shapeai.get("/is/:isbn",(req,res)=>{
-    const getspecificbook=database.books.filter((book)=>
-    book.isbn==req.params.isbn
-    );
-    if(getspecificbook.length==0){
+shapeai.get("/is/:isbn",async(req,res)=>{
+// this is in mongo db
+const  getspecificbook=await BookModel.findOne({isbn:req.params.isbn})
+    // this in express js
+    // const getspecificbook=database.books.filter((book)=>
+    // book.isbn==req.params.isbn
+    // );
+    if(!getspecificbook){
         return res.json({error:`no book found according to isbn ${req.params.isbn}`});
     }
         return res.json({books:getspecificbook})
@@ -53,11 +55,16 @@ shapeai.get("/is/:isbn",(req,res)=>{
     
     // to get book on the basis of category
 // request -get
-    shapeai.get("/book/:category",(req,res)=>{
-        const getbookbasedoncategory=database.books.filter((book)=>
-        book.category.includes(req.params.category)
-        );
-        if(getbookbasedoncategory===0){
+    shapeai.get("/book/:category",async(req,res)=>{
+
+// in mongo
+const getbookbasedoncategory=await BookModel.findOne({category:req.params.category})
+
+        // its in express 
+        // const getbookbasedoncategory=database.books.filter((book)=>
+        // book.category.includes(req.params.category)
+        // );
+        if(!getbookbasedoncategory){
             return res.json({error:`no book found based on category ${req.params.category}`})
         }
         return res.json({books:getbookbasedoncategory});
@@ -81,18 +88,25 @@ shapeai.get("/is/:isbn",(req,res)=>{
 
 // to get author
 // request -get
-shapeai.get("/authors",(req,res)=>{
-    return res.json({author:database.authors})
+shapeai.get("/authors",async(req,res)=>{
+    const getallauthor=await AuthorModel.find();
+// in mongodb
+return res.json({author:getallauthor});
+    // its in express
+    // return res.json({author:database.authors})
 })
 
 
 // to get specific author
 // request -get
-shapeai.get("/author/:id",(req,res)=>{
-    const getspecificauthor=database.authors.filter((author)=>
-author.id==req.params.id
-    );
-    if(getspecificauthor.length==0){
+shapeai.get("/author/:id",async(req,res)=>{
+// in mongo db
+const getspecificauthor=await AuthorModel.find({id:req.params.id})
+    // its in express
+//     const getspecificauthor=database.authors.filter((author)=>
+// author.id==req.params.id
+//     );
+    if(!getspecificauthor.length){
         return res.json({error:`no book found according to id ${req.params.id}`});
     }
         return res.json({author:getspecificauthor})
@@ -115,17 +129,21 @@ shapeai.get("/author/:isbn",(req,res)=>{
 
  // to get all publications
  // request -get
- shapeai.get("/publications",(req,res)=>{
-     return res.json({publications:database.publications});
+ shapeai.get("/publications",async(req,res)=>{
+     const getallpublication=await PublicationModel.find();
+     return res.json({publications:getallpublication});
  })
 
 // to get specific publication
 // request -get
-shapeai.get("/publication/:id",(req,res)=>{
-    const getspecificpublication=database.publications.filter((publication)=>
-    publication.id==req.params.id
-    );
-    if(getspecificpublication.length===0){
+shapeai.get("/publication/:id",async(req,res)=>{
+//  in mongodb
+const getspecificpublication=await PublicationModel.findOne({id:req.params.id})
+    // in express
+    // const getspecificpublication=database.publications.filter((publication)=>
+    // publication.id==req.params.id
+    // );
+    if(!getspecificpublication){
         return res.json({error:`no book found according to id ${req.params.id}`});
     }
         return res.json({publication:getspecificpublication})
@@ -148,30 +166,40 @@ shapeai.get("/publications/:isbn",(req,res)=>{
 
 // to add new book 
 // request-post
-shapeai.post("/books/new",(req,res)=>
+
+shapeai.post("/books/new",async(req,res)=>
 {
 const {newbook}=req.body;
-database.books.push(newbook);
-return res.json({books:database.books,message:"new book is added"});
+// in mongodb
+const  addnewbook=await BookModel.create(newbook)
+// its in express 
+// database.books.push(newbook);
+return res.json({books:addnewbook,message:"new book is added"});
 })
 
 //  to add new author
 // request -post
 
-shapeai.post("/author/new",(req,res)=>
+shapeai.post("/author/new",async(req,res)=>
 {
 const {newauthor}=req.body;
-database.authors.push(newauthor);
-return res.json({author:database.authors,message:"new author is added"});
+const addnewauthor=await AuthorModel.create(newauthor)
+
+// its in express
+// database.authors.push(newauthor);
+return res.json({author:addnewauthor,message:"new author is added"});
 })
 
 // to add new publication
 // request-post
-shapeai.post("/publication/new",(req,res)=>
+shapeai.post("/publication/new",async(req,res)=>
 {
 const {newpublication}=req.body;
-database.publications.push(newpublication);
-return res.json({publication:database.publications,message:"new publication is added"});
+// in mongodb
+const addnewpublication=await PublicationModel.create(newpublication);
+// its in express
+// database.publications.push(newpublication);
+return res.json({publication:addnewpublication,message:"new publication is added"});
 })
 //  shapeai.listen(3000,()=>console.log("start server"));
 
