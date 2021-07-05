@@ -2,10 +2,17 @@
 require("dotenv").config();
 
 
-// const { response } = require("express");
 const express= require("express");
 
+// mongoose
 const mongoose =require("mongoose");
+// models for book
+const BookModel=require("./database/book");
+// models for author
+const AuthorModel=require("./database/author");
+// models for publication
+const PublicationModel=require("./database/publication");
+
 // initializing
 const shapeai=express();
 
@@ -13,6 +20,8 @@ const shapeai=express();
 shapeai.use(express.json());
 // database
 const database=require("./database/index");
+
+
 // establish a connection to database
 mongoose.connect(process.env.MONGO_URL,{useNewUrlParser: true,
     useUnifiedTopology: true,
